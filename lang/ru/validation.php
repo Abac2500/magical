@@ -1,0 +1,41 @@
+<?php
+
+return [
+    'required' => 'Поле :attribute обязательно для заполнения.',
+    'string' => 'Поле :attribute должно быть строкой.',
+    'email' => 'Поле :attribute должно быть корректным email-адресом.',
+    'integer' => 'Поле :attribute должно быть целым числом.',
+    'array' => 'Поле :attribute должно быть массивом.',
+    'date' => 'Поле :attribute должно быть датой.',
+    'confirmed' => 'Поле :attribute и подтверждение не совпадают.',
+    'different' => 'Поля :attribute и :other должны различаться.',
+    'distinct' => 'Поле :attribute содержит повторяющееся значение.',
+    'exists' => 'Выбранное значение поля :attribute некорректно.',
+    'unique' => 'Такое значение поля :attribute уже используется.',
+    'enum' => 'Выбранное значение поля :attribute некорректно.',
+    'before_or_equal' => 'Поле :attribute должно быть датой не позднее :date.',
+    'max' => [
+        'string' => 'Поле :attribute не должно превышать :max символов.',
+        'array' => 'Поле :attribute не должно содержать более :max элементов.',
+    ],
+    'min' => [
+        'string' => 'Поле :attribute должно содержать не менее :min символов.',
+        'array' => 'Поле :attribute должно содержать не менее :min элементов.',
+    ],
+    'attributes' => [
+        'name' => 'имя',
+        'nickname' => 'прозвище',
+        'email' => 'email',
+        'password' => 'пароль',
+        'password_confirmation' => 'подтверждение пароля',
+        'device_name' => 'имя устройства',
+        'species_id' => 'вид',
+        'gender' => 'пол',
+        'birth_date' => 'дата рождения',
+        'best_friend_name' => 'имя лучшего друга',
+        'friend_id' => 'идентификатор друга',
+        'participant_ids' => 'участники чата',
+        'participant_ids.*' => 'участник чата',
+        'body' => 'сообщение',
+    ],
+];

@@ -1,59 +1,105 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Magical Forest API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Backend API для социальной сети жителей волшебного леса.  
+Проект сделан на Laravel 12+ и включает аутентификацию, профили зверей, дружбу, чаты и механизм рекомендаций.
 
-## About Laravel
+## Что реализовано
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- API с префиксом `/api/v1`
+- Регистрация и вход пользователей (Sanctum Bearer Token)
+- Регистрация профиля зверя
+- Добавление друзей
+- Личные и групповые чаты, сообщения до 128 символов
+- Рекомендации друзей (до 10 записей) по правилам ТЗ
+- Swagger UI и админ-панель Filament
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## ТЗ (с главной страницы)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 1) Регистрация зверя
 
-## Learning Laravel
+- Имя — обязательно
+- Прозвище — опционально
+- Вид животного — каталог: Сова, Заяц, Волк, Мышь (расширяемый)
+- Пол — М или Ж
+- Дата рождения — обязательно
+- Имя лучшего друга — обязательно
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### 2) Функционал сети
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- Можно заводить друзей
+- Можно обмениваться сообщениями в чате с одним или несколькими друзьями
+- Сообщение — текст до 128 символов
 
-## Laravel Sponsors
+### 3) Механизм рекомендаций (до 10 записей)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+1. Сначала звери, чье имя совпадает или близко к имени лучшего друга.
+2. Если не найдено — звери, чье прозвище совпадает или близко к имени лучшего друга.
+3. Если не найдено — звери того же вида и противоположного пола.
+4. Если не найдено — звери того же вида.
 
-### Premium Partners
+### 4) Дополнительные требования
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+- Для механизма рекомендаций есть seeder и тесты
+- Дополнительные улучшения возможны, но базовое ТЗ должно быть выполнено полностью
 
-## Contributing
+## Стек
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- PHP 8.5
+- Laravel 12
+- Laravel Sanctum
+- Filament 5
+- L5-Swagger
+- Pest
+- Vite + Tailwind CSS
 
-## Code of Conduct
+## Быстрый старт
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+composer setup
+php artisan db:seed
+composer dev
+```
 
-## Security Vulnerabilities
+Для наполнения тестовыми данными рекомендаций:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+php artisan db:seed --class=RecommendationScenarioSeeder
+```
 
-## License
+## Полезные точки входа
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- Главная с описанием ТЗ: `/`
+- API: `/api/v1`
+- Swagger UI: `/api/documentation`
+- Админ-панель Filament: `/admin`
+- Тестовый логин админа (после `php artisan db:seed`): `admin@magical.local / password`
+
+В Swagger: сначала вызовите `/api/v1/auth/login`, затем в `Authorize` вставьте только `<token>`.
+
+## Основные эндпоинты API
+
+Публичные:
+
+- `GET /api/v1/species`
+- `POST /api/v1/auth/register`
+- `POST /api/v1/auth/login`
+
+Требуют Bearer-токен:
+
+- `POST /api/v1/auth/logout`
+- `GET /api/v1/auth/me`
+- `POST /api/v1/species`
+- `POST /api/v1/animals/register`
+- `GET /api/v1/animals/me`
+- `GET /api/v1/animals/me/friends`
+- `POST /api/v1/friendships`
+- `GET /api/v1/animals/me/recommendations`
+- `POST /api/v1/chats`
+- `GET /api/v1/chats/{chat}/messages`
+- `POST /api/v1/chats/{chat}/messages`
+
+## Тесты
+
+```bash
+composer test
+```
