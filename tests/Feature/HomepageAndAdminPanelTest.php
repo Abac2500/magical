@@ -31,6 +31,6 @@ it('creates admin user when seeding database', function (): void {
     $this->seed();
 
     expect(
-        User::query()->where('email', 'admin@magical.local')->exists()
+        User::where('email', 'admin@magical.local')->exists()
     )->toBeTrue();
 });

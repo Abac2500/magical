@@ -13,13 +13,12 @@ use Symfony\Component\HttpFoundation\Response;
 class FriendshipController extends Controller
 {
     /**
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index(Request $request)
     {
         $animal = $request->user()->animal;
-        if (!$animal) {
+        if (! $animal) {
             return response()->json([
                 'message' => 'Сначала создайте профиль зверя.',
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
@@ -31,8 +30,8 @@ class FriendshipController extends Controller
     }
 
     /**
-     * @param StoreFriendshipRequest $request
      * @return \Illuminate\Http\JsonResponse
+     *
      * @throws \Throwable
      */
     public function store(StoreFriendshipRequest $request)
@@ -40,13 +39,13 @@ class FriendshipController extends Controller
         $payload = $request->validated();
 
         $animal = $request->user()->animal;
-        if (!$animal) {
+        if (! $animal) {
             return response()->json([
                 'message' => 'Сначала создайте профиль зверя.',
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $friend = Animal::query()->findOrFail($payload['friend_id']);
+        $friend = Animal::findOrFail($payload['friend_id']);
         if ($animal->is($friend)) {
             return response()->json([
                 'message' => 'Нельзя добавить себя в друзья.',
@@ -61,7 +60,6 @@ class FriendshipController extends Controller
 
         DB::transaction(function () use ($animal, $friend): void {
             $animal->friends()->syncWithoutDetaching([$friend->id]);
-            $friend->friends()->syncWithoutDetaching([$animal->id]);
         });
 
         return response()->json([

@@ -62,7 +62,7 @@ it('reuses same token on login and rotates it after logout', function (): void {
         'Authorization' => "Bearer {$tokenBeforeLogout}",
     ])->assertOk();
 
-    $user = User::query()->where('email', 'forest@example.com')->firstOrFail()->fresh();
+    $user = User::where('email', 'forest@example.com')->firstOrFail()->fresh();
     expect($user->tokens()->count())->toBe(0);
     expect($user->api_token)->toBeNull();
 

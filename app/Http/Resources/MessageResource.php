@@ -19,7 +19,7 @@ class MessageResource extends JsonResource
             'id' => $this->id,
             'chat_id' => $this->chat_id,
             'sender_id' => $this->sender_id,
-            'sender_name' => $this->whenLoaded('sender', fn() => $this->sender->name),
+            'sender_name' => $this->whenLoaded('sender', fn () => $this->sender->name),
             'body' => $this->body,
             'created_at' => $this->created_at?->toISOString(),
         ];

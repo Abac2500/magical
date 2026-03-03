@@ -11,7 +11,6 @@ use Symfony\Component\HttpFoundation\Response;
 class AnimalRegistrationController extends Controller
 {
     /**
-     * @param StoreAnimalRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(StoreAnimalRequest $request)

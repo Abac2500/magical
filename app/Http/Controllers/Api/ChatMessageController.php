@@ -13,14 +13,12 @@ use Symfony\Component\HttpFoundation\Response;
 class ChatMessageController extends Controller
 {
     /**
-     * @param Chat $chat
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index(Chat $chat, Request $request)
     {
         $animal = $request->user()->animal;
-        if (!$animal || !$chat->participants()->whereKey($animal->id)->exists()) {
+        if (! $animal || ! $chat->participants()->whereKey($animal->id)->exists()) {
             return response()->json([
                 'message' => 'Доступ только к чатам, где участвует ваш зверь.',
             ], Response::HTTP_FORBIDDEN);
@@ -35,15 +33,13 @@ class ChatMessageController extends Controller
     }
 
     /**
-     * @param StoreMessageRequest $request
-     * @param Chat $chat
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(StoreMessageRequest $request, Chat $chat)
     {
         $payload = $request->validated();
         $sender = $request->user()->animal;
-        if (!$sender) {
+        if (! $sender) {
             return response()->json([
                 'message' => 'Сначала создайте профиль зверя.',
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
@@ -52,18 +48,17 @@ class ChatMessageController extends Controller
         $isParticipant = $chat->participants()
             ->whereKey($sender->id)
             ->exists();
-        if (!$isParticipant) {
+        if (! $isParticipant) {
             return response()->json([
                 'message' => 'Отправитель не является участником этого чата.',
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $message = Message::query()
-            ->create([
-                'chat_id' => $chat->id,
-                'sender_id' => $sender->id,
-                'body' => $payload['body'],
-            ])
+        $message = Message::create([
+            'chat_id' => $chat->id,
+            'sender_id' => $sender->id,
+            'body' => $payload['body'],
+        ])
             ->load('sender');
 
         return (new MessageResource($message))

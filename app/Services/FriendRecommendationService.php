@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\Animal;
+use App\Models\Friendship;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
@@ -15,88 +17,145 @@ class FriendRecommendationService
      */
     public function for(Animal $animal, int $limit = 10): Collection
     {
-        $excludedIds = $animal->friends()
-            ->pluck('animals.id')
+        $excludedIds = Friendship::where('animal_id', $animal->id)
+            ->pluck('friend_id')
             ->push($animal->id)
             ->all();
 
-        $baseQuery = fn() => Animal::with('species')
+        $baseQuery = fn(): Builder => (new Animal)
+            ->newQuery()
             ->whereNotIn('id', $excludedIds);
 
         $bestFriendName = $animal->best_friend_name;
 
-        $byName = $this->filterBySimilarity(
-            $baseQuery()->get(),
+        $byNameIds = $this->findSimilarIds(
+            $baseQuery()->select(['id', 'name']),
             $bestFriendName,
-            fn(Animal $candidate) => $candidate->name,
+            'name',
             $limit
         );
-        if ($byName->isNotEmpty()) {
-            return $byName;
+        if ($byNameIds !== []) {
+            return $this->loadAnimalsWithSpeciesByOrderedIds($byNameIds);
         }
 
-        $byNickname = $this->filterBySimilarity(
-            $baseQuery()->whereNotNull('nickname')->get(),
+        $byNicknameIds = $this->findSimilarIds(
+            $baseQuery()
+                ->whereNotNull('nickname')
+                ->select(['id', 'nickname']),
             $bestFriendName,
-            fn(Animal $candidate) => $candidate->nickname ?? '',
+            'nickname',
             $limit
         );
-        if ($byNickname->isNotEmpty()) {
-            return $byNickname;
+        if ($byNicknameIds !== []) {
+            return $this->loadAnimalsWithSpeciesByOrderedIds($byNicknameIds);
         }
 
         $sameSpeciesOppositeGender = $baseQuery()
             ->where('species_id', $animal->species_id)
             ->where('gender', '!=', $animal->gender->value)
+            ->orderBy('id')
             ->limit($limit)
-            ->get();
+            ->get()
+            ->load('species');
         if ($sameSpeciesOppositeGender->isNotEmpty()) {
             return $sameSpeciesOppositeGender;
         }
 
         return $baseQuery()
             ->where('species_id', $animal->species_id)
+            ->orderBy('id')
             ->limit($limit)
-            ->get();
+            ->get()
+            ->load('species');
     }
 
     /**
-     * @param Collection $candidates
-     * @param string $needle
-     * @param callable $fieldResolver
-     * @param int $limit
-     * @return Collection
+     * @return array<int, int>
      */
-    private function filterBySimilarity(
-        Collection $candidates,
-        string     $needle,
-        callable   $fieldResolver,
-        int        $limit
-    ): Collection
+    private function findSimilarIds(
+        Builder $candidateQuery,
+        string  $needle,
+        string  $column,
+        int     $limit
+    ): array
     {
         $normalizedNeedle = $this->normalize($needle);
+        if ($normalizedNeedle === '' || $limit < 1) {
+            return [];
+        }
 
-        return $candidates
-            ->map(function (Animal $candidate) use ($fieldResolver, $normalizedNeedle): ?array {
-                $value = $this->normalize($fieldResolver($candidate));
-                if ($value === '' || $normalizedNeedle === '') {
-                    return null;
-                }
+        $bestMatches = [];
 
-                $distance = $this->unicodeLevenshtein($normalizedNeedle, $value);
-                $threshold = max(
-                    1,
-                    intdiv(max(mb_strlen($normalizedNeedle), mb_strlen($value)), 3)
-                );
+        /** @var Animal $candidate */
+        foreach ($candidateQuery->orderBy('id')->cursor() as $candidate) {
+            $value = $this->normalize((string)($candidate->{$column} ?? ''));
+            if ($value === '') {
+                continue;
+            }
 
-                return $distance <= $threshold
-                    ? ['candidate' => $candidate, 'distance' => $distance]
-                    : null;
+            $distance = $this->unicodeLevenshtein($normalizedNeedle, $value);
+            $threshold = max(
+                1,
+                intdiv(max(mb_strlen($normalizedNeedle), mb_strlen($value)), 3)
+            );
+
+            if ($distance > $threshold) {
+                continue;
+            }
+
+            $this->pushMatch($bestMatches, (int)$candidate->id, $distance, $limit);
+        }
+
+        usort($bestMatches, [$this, 'compareMatches']);
+
+        return array_map(
+            static fn(array $match): int => $match['id'],
+            $bestMatches
+        );
+    }
+
+    private function pushMatch(array &$bestMatches, int $id, int $distance, int $limit): void
+    {
+        $currentMatch = ['id' => $id, 'distance' => $distance];
+
+        if (count($bestMatches) < $limit) {
+            $bestMatches[] = $currentMatch;
+
+            return;
+        }
+
+        $worstMatchIndex = 0;
+        foreach ($bestMatches as $index => $match) {
+            if ($this->compareMatches($bestMatches[$worstMatchIndex], $match) < 0) {
+                $worstMatchIndex = $index;
+            }
+        }
+
+        if ($this->compareMatches($currentMatch, $bestMatches[$worstMatchIndex]) < 0) {
+            $bestMatches[$worstMatchIndex] = $currentMatch;
+        }
+    }
+
+    private function compareMatches(array $left, array $right): int
+    {
+        return $left['distance'] <=> $right['distance']
+            ?: $left['id'] <=> $right['id'];
+    }
+
+    private function loadAnimalsWithSpeciesByOrderedIds(array $orderedIds): Collection
+    {
+        $animalsById = Animal::with('species')
+            ->whereIn('id', $orderedIds)
+            ->get()
+            ->keyBy('id');
+
+        return collect($orderedIds)
+            ->map(static function (int $id) use ($animalsById): ?Animal {
+                $animal = $animalsById->get($id);
+
+                return $animal instanceof Animal ? $animal : null;
             })
             ->filter()
-            ->sortBy('distance')
-            ->take($limit)
-            ->pluck('candidate')
             ->values();
     }
 

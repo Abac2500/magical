@@ -21,7 +21,7 @@ class AnimalResource extends JsonResource
             'name' => $this->name,
             'nickname' => $this->nickname,
             'species_id' => $this->species_id,
-            'species_name' => $this->whenLoaded('species', fn() => $this->species->name),
+            'species_name' => $this->whenLoaded('species', fn () => $this->species->name),
             'gender' => $this->gender->value,
             'birth_date' => $this->birth_date->toDateString(),
             'best_friend_name' => $this->best_friend_name,

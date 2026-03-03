@@ -21,7 +21,7 @@ class ChatResource extends JsonResource
             'created_by' => $this->created_by,
             'participant_ids' => $this->whenLoaded(
                 'participants',
-                fn() => $this->participants->pluck('id')->values()
+                fn () => $this->participants->pluck('id')->values()
             ),
             'created_at' => $this->created_at?->toISOString(),
         ];

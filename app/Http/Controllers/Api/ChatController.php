@@ -14,8 +14,8 @@ use Symfony\Component\HttpFoundation\Response;
 class ChatController extends Controller
 {
     /**
-     * @param StoreChatRequest $request
      * @return \Illuminate\Http\JsonResponse
+     *
      * @throws \Throwable
      */
     public function store(StoreChatRequest $request)
@@ -23,16 +23,16 @@ class ChatController extends Controller
         $payload = $request->validated();
 
         $creator = $request->user()->animal;
-        if (!$creator) {
+        if (! $creator) {
             return response()->json([
                 'message' => 'Сначала создайте профиль зверя.',
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $participantIds = collect($payload['participant_ids'])
-            ->map(fn(mixed $id): int => (int)$id)
+            ->map(fn (mixed $id): int => (int) $id)
             ->unique()
-            ->reject(fn(int $id): bool => $id === $creator->id)
+            ->reject(fn (int $id): bool => $id === $creator->id)
             ->values();
 
         if ($participantIds->isEmpty()) {
@@ -50,7 +50,7 @@ class ChatController extends Controller
         }
 
         $chat = DB::transaction(function () use ($creator, $participantIds, $payload): Chat {
-            $chat = Chat::query()->create([
+            $chat = Chat::create([
                 'name' => $payload['name'] ?? null,
                 'created_by' => $creator->id,
             ]);

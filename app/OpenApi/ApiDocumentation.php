@@ -56,9 +56,7 @@ class ApiDocumentation
             ),
         ]
     )]
-    public function register(): void
-    {
-    }
+    public function register(): void {}
 
     #[OA\Post(
         path: '/api/v1/auth/login',
@@ -91,9 +89,7 @@ class ApiDocumentation
             new OA\Response(response: 422, description: 'Неверные учетные данные'),
         ]
     )]
-    public function login(): void
-    {
-    }
+    public function login(): void {}
 
     #[OA\Get(
         path: '/api/v1/auth/me',
@@ -106,9 +102,7 @@ class ApiDocumentation
             new OA\Response(response: 401, description: 'Не авторизован'),
         ]
     )]
-    public function me(): void
-    {
-    }
+    public function me(): void {}
 
     #[OA\Post(
         path: '/api/v1/auth/logout',
@@ -122,9 +116,7 @@ class ApiDocumentation
             new OA\Response(response: 401, description: 'Не авторизован'),
         ]
     )]
-    public function logout(): void
-    {
-    }
+    public function logout(): void {}
 
     #[OA\Get(
         path: '/api/v1/species',
@@ -135,9 +127,7 @@ class ApiDocumentation
             new OA\Response(response: 200, description: 'Успех'),
         ]
     )]
-    public function speciesIndex(): void
-    {
-    }
+    public function speciesIndex(): void {}
 
     #[OA\Post(
         path: '/api/v1/species',
@@ -159,9 +149,7 @@ class ApiDocumentation
             new OA\Response(response: 401, description: 'Не авторизован'),
         ]
     )]
-    public function speciesStore(): void
-    {
-    }
+    public function speciesStore(): void {}
 
     #[OA\Post(
         path: '/api/v1/animals/register',
@@ -188,9 +176,7 @@ class ApiDocumentation
             new OA\Response(response: 422, description: 'Профиль уже существует/ошибка валидации'),
         ]
     )]
-    public function animalsRegister(): void
-    {
-    }
+    public function animalsRegister(): void {}
 
     #[OA\Get(
         path: '/api/v1/animals/me',
@@ -203,9 +189,7 @@ class ApiDocumentation
             new OA\Response(response: 404, description: 'Профиль не найден'),
         ]
     )]
-    public function animalsMe(): void
-    {
-    }
+    public function animalsMe(): void {}
 
     #[OA\Get(
         path: '/api/v1/animals/me/friends',
@@ -218,9 +202,7 @@ class ApiDocumentation
             new OA\Response(response: 422, description: 'Сначала создайте профиль зверя'),
         ]
     )]
-    public function friendsIndex(): void
-    {
-    }
+    public function friendsIndex(): void {}
 
     #[OA\Post(
         path: '/api/v1/friendships',
@@ -242,9 +224,7 @@ class ApiDocumentation
             new OA\Response(response: 422, description: 'Ошибка валидации/логики'),
         ]
     )]
-    public function friendshipsStore(): void
-    {
-    }
+    public function friendshipsStore(): void {}
 
     #[OA\Get(
         path: '/api/v1/animals/me/recommendations',
@@ -257,9 +237,7 @@ class ApiDocumentation
             new OA\Response(response: 422, description: 'Сначала создайте профиль зверя'),
         ]
     )]
-    public function recommendationsIndex(): void
-    {
-    }
+    public function recommendationsIndex(): void {}
 
     #[OA\Post(
         path: '/api/v1/chats',
@@ -286,9 +264,7 @@ class ApiDocumentation
             new OA\Response(response: 422, description: 'Ошибка валидации/логики'),
         ]
     )]
-    public function chatsStore(): void
-    {
-    }
+    public function chatsStore(): void {}
 
     #[OA\Get(
         path: '/api/v1/chats/{chat}/messages',
@@ -304,9 +280,7 @@ class ApiDocumentation
             new OA\Response(response: 403, description: 'Нет доступа'),
         ]
     )]
-    public function chatMessagesIndex(): void
-    {
-    }
+    public function chatMessagesIndex(): void {}
 
     #[OA\Post(
         path: '/api/v1/chats/{chat}/messages',
@@ -331,7 +305,5 @@ class ApiDocumentation
             new OA\Response(response: 422, description: 'Ошибка валидации/логики'),
         ]
     )]
-    public function chatMessagesStore(): void
-    {
-    }
+    public function chatMessagesStore(): void {}
 }

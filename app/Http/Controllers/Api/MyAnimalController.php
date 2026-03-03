@@ -10,14 +10,13 @@ use Symfony\Component\HttpFoundation\Response;
 class MyAnimalController extends Controller
 {
     /**
-     * @param Request $request
      * @return AnimalResource|\Illuminate\Http\JsonResponse
      */
     public function show(Request $request)
     {
         $animal = $request->user()->animal()?->with('species')->first();
 
-        if (!$animal) {
+        if (! $animal) {
             return response()->json([
                 'message' => 'Профиль зверя не создан.',
             ], Response::HTTP_NOT_FOUND);

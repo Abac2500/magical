@@ -14,14 +14,13 @@ use Symfony\Component\HttpFoundation\Response;
 class AuthController extends Controller
 {
     /**
-     * @param RegisterRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function register(RegisterRequest $request)
     {
         $payload = $request->validated();
 
-        $user = User::query()->create([
+        $user = User::create([
             'name' => $payload['name'],
             'email' => $payload['email'],
             'password' => Hash::make($payload['password']),
@@ -41,18 +40,16 @@ class AuthController extends Controller
     }
 
     /**
-     * @param LoginRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function login(LoginRequest $request)
     {
         $payload = $request->validated();
 
-        $user = User::query()
-            ->where('email', $payload['email'])
+        $user = User::where('email', $payload['email'])
             ->first();
 
-        if (!$user || !Hash::check($payload['password'], $user->password)) {
+        if (! $user || ! Hash::check($payload['password'], $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['Неверный email или пароль.'],
             ]);
@@ -72,7 +69,6 @@ class AuthController extends Controller
     }
 
     /**
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function me(Request $request)
@@ -92,7 +88,6 @@ class AuthController extends Controller
     }
 
     /**
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function logout(Request $request)
